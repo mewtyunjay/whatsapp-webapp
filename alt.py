@@ -1,7 +1,15 @@
 from flask import Flask, render_template, url_for, request
 from selenium import webdriver
-import time, sys
-from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+import time
+import io
+import csv
+from selenium.webdriver.support.ui import WebDriverWait
+
+import pandas as pd
+import numpy as np
+import csv
 
 app = Flask(__name__)
 
@@ -11,71 +19,49 @@ def index():
 
 @app.route('/Send', methods = ["GET", "POST"])
 def Send():
+    if request.method == 'POST':
+        message = str(request.form['user_msg'])
 
-    name = request.form['user_name']
-    # message = request.form['msg']
+        options = webdriver.ChromeOptions()
+        options.add_argument('--user-data-dir=/Users/mrityunjay/Library/Application Support/Google/Chrome/Default')
+        options.add_argument('--profile-directory=Default')
+        chrome_browser = webdriver.Chrome(executable_path='/Users/mrityunjay/Downloads/chromedriver', options=options)
 
-    def new_chat(user_name):
-        # click on search bar
-        new_chat = chrome_browser.find_element_by_xpath('//div[@class="_22PcK"]')
-        new_chat.click()
+        def remove(string):
+            return string.replace(" ", "")
 
-        # type the new user name
-        new_user = chrome_browser.find_element_by_xpath('//div[@class="_1awRl copyable-text selectable-text"]')
-        new_user.send_keys(user_name)
-        time.sleep(1)
+        numbers = []
+        f = request.form['file']
+        if not f:
+            return "No file"
 
-        try:
-            # click on the said user
-            user = chrome_browser.find_element_by_xpath('//span[@title="{}"]'.format(user_name))
-            user.click()
-            time.sleep(2)
+        with open(f) as file:
+            csvfile = csv.reader(file)
+            for row in csvfile:
+                row[0] = remove(row[0])
+                if len(row[0]) == 10:
+                    row[0] = '91' + str(row[0])
+                    numbers.append(row[0])
+                else:
+                    numbers.append(row[0])
 
-        # if user not found
-        except NoSuchElementException:
-            print("User doesn't exist in database")
-        except Exception as e:
-            chrome_browser.close()
-            print(e)
-            sys.exit()
+        numbers = np.array(numbers)
+        print(type(numbers))
 
+        for number in numbers:
+            try:
+                url = 'https://web.whatsapp.com/send?phone=' + number + '&text=' + message
+                chrome_browser.get(url)
 
-    # for reading cache to avoid rescan of QR
-    options = webdriver.ChromeOptions()
-    options.add_argument('--user-data-dir=/Users/mrityunjay/Library/Application Support/Google/Chrome/Default')
-    options.add_argument('--profile-directory=Default')
+                wait = WebDriverWait(chrome_browser, 30)
+                button = wait.until(EC.visibility_of_element_located((By.XPATH, "//button[@class='_2Ujuu']")))
 
-    # link the chromedriver
-    chrome_browser = webdriver.Chrome(executable_path='/Users/mrityunjay/Downloads/chromedriver', options=options)
-    chrome_browser.get('https://web.whatsapp.com/')
-    time.sleep(15)
+                button.click()
+                time.sleep(1)
+            except Exception:
+                return render_template('index.html', prediction_text="Could not be sent")
 
-    username_list = [name]
-
-    for user_name in username_list:
-
-        try:
-            # look for chat in recent chats and click on it
-            user = chrome_browser.find_element_by_xpath('//span[@title="{}"]'.format(user_name))
-            user.click()
-
-            # if not found in recent chat, look for it in new chat
-        except NoSuchElementException as se:
-            new_chat(user_name)
-
-
-         # click on textbox and type message
-        message_box = chrome_browser.find_element_by_xpath('//div[@class="DuUXI"]')
-        # message_box.click()
-        message_box.send_keys("Hello")
-
-        # click on msg send button
-        # button = chrome_browser.find_element_by_xpath('//button[@class="_2Ujuu"]')
-        # button.click()
-
-    time.sleep(1)
-    return render_template('index.html', prediction_text="Message Sent")
-
+    return render_template('index.html', prediction_text=f"Messages Sent")
 
 if __name__ == '__main__':
     app.run(debug=True)

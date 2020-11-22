@@ -1,20 +1,23 @@
 {% extends 'base.html' %}
 
 {% block head %}
+
 {% endblock %}
 
 
 {% block body %}
-<h1>Template</h1>
+<h1>WhatsApp Automation</h1>
 <form action="{{ url_for('Send')}}" method="POST">
-    <label for="user_name">Contact Name :</label>
-    <input id="user_name" name="user_name" type="text">
-
-    <label for="user_msg">Message :</label>
-    <input id="user_msg" name="user_msg" type="text">
-
-<!--    <label for="csv">Upload CSV :</label>-->
-<!--    <input id="csv" name="csv" type="file">-->
+	<div>
+		<label for="user_msg">Message :</label>
+    	<input id="user_msg" name="user_msg" type="text">
+	</div>
+    
+	<div>
+		<label for="file">Upload CSV :</label>
+    	<input id="file" name="file" type="file">
+	</div>
+    
     <br><br>
     <h3>{{ prediction_text }}</h3>
     <button id="Send" class="btn btn-primary" type="submit ">Send
@@ -22,3 +25,12 @@
 
 </form>
 {% endblock %}
+
+
+
+
+
+
+
+
+
