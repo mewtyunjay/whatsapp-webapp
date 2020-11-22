@@ -57,7 +57,7 @@ def Send():
             except Exception:
                 return render_template('index.html', prediction_text="Could not be sent")
 
-    return render_template('index.html', prediction_text=f"Messages Sent to {len(numbers)}")
+    return render_template('index.html', prediction_text=f"Messages Sent to {len(numbers)} contacts!")
 
 if __name__ == '__main__':
     app.run(debug=True)
