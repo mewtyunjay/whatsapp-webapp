@@ -6,21 +6,12 @@ import time
 import io
 import csv
 from selenium.webdriver.support.ui import WebDriverWait
-import yaml
-from datetime import datetime
-from flask_mysqldb import MySQL
+
+import pandas as pd
 import numpy as np
+import csv
 
 app = Flask(__name__)
-
-#mysql confg
-db = yaml.load(open('db.yaml'), Loader=yaml.FullLoader)
-app.config['MYSQL_HOST'] = db['mysql_host']
-app.config['MYSQL_USER'] = db['mysql_user']
-app.config['MYSQL_PASSWORD'] = db['mysql_password']
-app.config['MYSQL_DB'] = db['mysql_db']
-
-mysql = MySQL(app) #instantiation of mysql obj
 
 @app.route('/', methods=['GET'])
 def index():
@@ -61,16 +52,12 @@ def Send():
             try:
                 url = 'https://web.whatsapp.com/send?phone=' + number + '&text=' + message
                 chrome_browser.get(url)
+
                 wait = WebDriverWait(chrome_browser, 30)
                 button = wait.until(EC.visibility_of_element_located((By.XPATH, "//button[@class='_2Ujuu']")))
+
                 button.click()
                 time.sleep(1)
-                cur = mysql.connection.cursor()
-                # now = datetime.now()
-                # formatted_date = now.strftime('%Y-%m-%d %H:%M:%S')
-                cur.execute("INSERT INTO users(msisdn, message) VALUES(%s, %s)",(number, message))
-                mysql.connection.commit()
-                cur.close()
             except Exception:
                 return render_template('index.html', prediction_text="Could not be sent")
 

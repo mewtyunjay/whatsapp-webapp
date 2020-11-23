@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block head %}
+<title>WhatsApp Automation</title>
+{% endblock %}
+{% block body %}
+<h1>WhatsApp Automation</h1>
+<table border= 1>
+<tr>
+    <th>MSISDN</th>
+    <th>Message</th>
+    <th>Sent Time</th>
+  </tr>
+{% for user in userDetails %}
+
+<tr>
+    <td>{{user[0]}}</td>
+    <td>{{user[1]}}</td>
+    <td>{{user[2]}}</td>
+</tr>
+{% endfor %}
+</table>
+
+{% endblock %}
