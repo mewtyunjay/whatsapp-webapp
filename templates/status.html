@@ -1,10 +1,14 @@
 {% extends 'base.html' %}
 {% block head %}
-<title>WhatsApp Automation</title>
+<title>Message Status</title>
+<script src="static/js/jquery-3.5.1.js"></script>
+<script lang="javascript" src="static/js/xlsx.full.min.js"></script>
+<script lang="javascript" src="static/js/FileSaver.min.js"></script>
 {% endblock %}
+
 {% block body %}
 <h1>WhatsApp Automation</h1>
-<table border= 1>
+<table border=1 id="status">
 <tr>
     <th>MSISDN</th>
     <th>Message</th>
@@ -19,5 +23,19 @@
 </tr>
 {% endfor %}
 </table>
+<button id="users">Create Excel</button>
+<script>
+    var wb = XLSX.utils.table_to_book(document.getElementById('status'), {sheet:"Sheet JS"});
+        var wbout = XLSX.write(wb, {bookType:'xlsx', bookSST:true, type: 'binary'});
+        function s2ab(s) {
+                        var buf = new ArrayBuffer(s.length);
+                        var view = new Uint8Array(buf);
+                        for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                        return buf;
+        }
+        $("#users").click(function(){
+        saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'users.xlsx');
+        });
 
+</script>
 {% endblock %}
