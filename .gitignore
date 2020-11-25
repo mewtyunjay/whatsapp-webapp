@@ -1,5 +1,10 @@
 db.yaml
-node_modules
+/node_modules
 package-lock.json
 .DS_Store
 contacts.csv
+WhatsAppBot.py
+alt.py
+backup.py
+/static/css/util.css
+/static/css/main.css
